@@ -29,4 +29,4 @@ display(spark.read.csv(f"{ADLS_PATH}/source_data.csv"))
 
 # COMMAND ----------
 
-
+display(dbutils.fs.mounts())
