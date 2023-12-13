@@ -5,20 +5,11 @@
 
 # COMMAND ----------
 
-from pyspark.sql.types import StructType, StructField,IntegerType, StringType, FloatType
-from pyspark.sql.functions import col, lit, current_timestamp
+# MAGIC %run "../Includes/configuration"
 
 # COMMAND ----------
 
-ADLS_SOURCE = "abfss://bronze@saprojectmaestrosnd.dfs.core.windows.net"
-ADLS_TARGET = "abfss://silver@saprojectmaestrosnd.dfs.core.windows.net"
-CONN_STRING = "fs.azure.account.key.saprojectmaestrosnd.dfs.core.windows.net"
-ACCESS_KEY = dbutils.secrets.get("Azure Key Vault", "adlsgen2key")
-
-spark.conf.set(
-CONN_STRING,
-ACCESS_KEY
-)
+# MAGIC %run "../Includes/common_functions"
 
 # COMMAND ----------
 
@@ -48,7 +39,7 @@ results_schema = StructType(fields=[
 
 results_df = spark.read \
     .schema(results_schema)\
-    .json(f"{ADLS_SOURCE}/formula1_raw/results.json")
+    .json(f"{BRONZE_LAYER_PATH}/results.json")
 
 # COMMAND ----------
 
@@ -72,4 +63,4 @@ results_final_df = results_renamed_df.drop(col("statusId"))
 
 results_final_df.write \
     .mode("overwrite") \
-    .parquet(f"{ADLS_TARGET}/processed/results")
+    .parquet(f"{SILVER_LAYER_PATH}/results")

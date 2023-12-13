@@ -4,20 +4,11 @@
 
 # COMMAND ----------
 
-from pyspark.sql.functions import col, current_timestamp, lit
-from pyspark.sql.types import StructType, StructField, IntegerType,StringType
+# MAGIC %run "../Includes/configuration"
 
 # COMMAND ----------
 
-ADLS_SOURCE = "abfss://bronze@saprojectmaestrosnd.dfs.core.windows.net"
-ADLS_TARGET = "abfss://silver@saprojectmaestrosnd.dfs.core.windows.net"
-CONN_STRING = "fs.azure.account.key.saprojectmaestrosnd.dfs.core.windows.net"
-ACCESS_KEY = dbutils.secrets.get("Azure Key Vault", "adlsgen2key")
-
-spark.conf.set(
-CONN_STRING,
-ACCESS_KEY
-)
+# MAGIC %run "../Includes/common_functions"
 
 # COMMAND ----------
 
@@ -38,7 +29,7 @@ qualifying_schema = StructType(fields=[
 qualifying_df = spark.read \
     .schema(qualifying_schema) \
     .option("multiLine", True) \
-    .json(f"{ADLS_SOURCE}/formula1_raw/qualifying/qualifying_split*.json")
+    .json(f"{BRONZE_LAYER_PATH}/qualifying/qualifying_split*.json")
 
 # COMMAND ----------
 
@@ -53,4 +44,4 @@ qualifying_final_df = qualifying_df \
 
 qualifying_final_df.write \
     .mode("overwrite") \
-    .parquet(f"{ADLS_TARGET}/processed/qualifying")
+    .parquet(f"{SILVER_LAYER_PATH}/qualifying")

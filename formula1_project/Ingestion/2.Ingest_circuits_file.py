@@ -4,24 +4,16 @@
 
 # COMMAND ----------
 
+# MAGIC %run "../Includes/configuration"
+
+# COMMAND ----------
+
+# MAGIC %run "../Includes/common_functions"
+
+# COMMAND ----------
+
 # MAGIC %md
 # MAGIC ##### Step -1 Read the CSV file using the spark dataframe reader
-
-# COMMAND ----------
-
-from pyspark.sql.types import StructType, StructField, IntegerType, StringType, DoubleType
-from pyspark.sql.functions import col, current_timestamp
-
-# COMMAND ----------
-
-formula1_account_key = dbutils.secrets.get('Azure Key Vault', 'adlsgen2key')
-adls_path = "abfss://bronze@saprojectmaestrosnd.dfs.core.windows.net"
-adls_target = "abfss://silver@saprojectmaestrosnd.dfs.core.windows.net"
-
-spark.conf.set(
-    "fs.azure.account.key.saprojectmaestrosnd.dfs.core.windows.net",
-    formula1_account_key
-    )
 
 # COMMAND ----------
 
@@ -44,7 +36,7 @@ circuits_schema = StructType(fields=[
 circuits_df = spark.read \
     .option("header",True) \
     .schema(circuits_schema) \
-    .csv(f"{adls_path}/formula1_raw/circuits.csv")
+    .csv(f"{BRONZE_LAYER_PATH}/circuits.csv")
 
 # COMMAND ----------
 
@@ -77,7 +69,7 @@ circuits_renamed_df = circuits_selected_df \
 
 # COMMAND ----------
 
-circuits_final_df = circuits_renamed_df.withColumn("ingestion_date", current_timestamp())
+circuits_final_df = add_ingestion_date(circuits_renamed_df)
 
 # COMMAND ----------
 
@@ -87,4 +79,4 @@ circuits_final_df = circuits_renamed_df.withColumn("ingestion_date", current_tim
 
 # COMMAND ----------
 
-circuits_final_df.write.mode("overwrite").parquet(f"{adls_target}/processed/circuits")
+circuits_final_df.write.mode("overwrite").parquet(f"{SILVER_LAYER_PATH}/circuits")

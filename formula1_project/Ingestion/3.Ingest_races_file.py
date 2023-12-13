@@ -4,20 +4,11 @@
 
 # COMMAND ----------
 
-from pyspark.sql.types import StructType, StructField, IntegerType, StringType,DateType
-from pyspark.sql.functions import col, current_timestamp, lit, concat, to_timestamp
+# MAGIC %run "../Includes/configuration"
 
 # COMMAND ----------
 
-ADLS_PATH = "abfss://bronze@saprojectmaestrosnd.dfs.core.windows.net"
-ADLS_TARGET = "abfss://silver@saprojectmaestrosnd.dfs.core.windows.net"
-ACCESS_KEY = dbutils.secrets.get('Azure Key Vault', 'adlsgen2key')
-
-spark.conf.set(
-    "fs.azure.account.key.saprojectmaestrosnd.dfs.core.windows.net",
-    ACCESS_KEY
-    )
-
+# MAGIC %run "../Includes/common_functions"
 
 # COMMAND ----------
 
@@ -37,7 +28,7 @@ races_schema = StructType(fields=[
 # Step1 Read the races CSV file
 races_df = spark.read.option("Header", True) \
     .schema(races_schema) \
-    .csv(f"{ADLS_PATH}/formula1_raw/races.csv")
+    .csv(f"{BRONZE_LAYER_PATH}/races.csv")
 
 display(races_df)
 
@@ -60,4 +51,4 @@ display(final_races_df)
 
 # COMMAND ----------
 
-final_races_df.write.mode("overwrite").parquet(f"{ADLS_TARGET}/processed/races")
+final_races_df.write.mode("overwrite").parquet(f"{SILVER_LAYER_PATH}/races")   

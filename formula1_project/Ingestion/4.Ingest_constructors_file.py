@@ -4,20 +4,11 @@
 
 # COMMAND ----------
 
-from pyspark.sql.types import StructType, StructField, StringType, IntegerType
-from pyspark.sql.functions import col, current_timestamp
+# MAGIC %run "../Includes/configuration"
 
 # COMMAND ----------
 
-ADLS_SOURCE = "abfss://bronze@saprojectmaestrosnd.dfs.core.windows.net"
-ADLS_TARGET = "abfss://silver@saprojectmaestrosnd.dfs.core.windows.net"
-ACCESS_KEY = dbutils.secrets.get("Azure Key Vault", "adlsgen2key")
-
-spark.conf.set(
-    "fs.azure.account.key.saprojectmaestrosnd.dfs.core.windows.net",
-    ACCESS_KEY
-)
-
+# MAGIC %run "../Includes/common_functions"
 
 # COMMAND ----------
 
@@ -31,7 +22,7 @@ constructors_schema = StructType(fields=[
 
 # COMMAND ----------
 
-constructors_df = spark.read.schema(constructors_schema).json(f"{ADLS_SOURCE}/formula1_raw/constructors.json")
+constructors_df = spark.read.schema(constructors_schema).json(f"{BRONZE_LAYER_PATH}/constructors.json")
 
 # COMMAND ----------
 
@@ -43,8 +34,8 @@ constructors_selected_df = constructors_df.select(
 
 # COMMAND ----------
 
-constructors_final_df = constructors_selected_df.withColumn("ingestion_date", current_timestamp())
+constructors_final_df = add_ingestion_date(constructors_selected_df)
 
 # COMMAND ----------
 
-constructors_final_df.write.mode("overwrite").parquet(f"{ADLS_TARGET}/processed/constructors")
+constructors_final_df.write.mode("overwrite").parquet(f"{SILVER_LAYER_PATH}/constructors")
