@@ -12,6 +12,11 @@
 
 # COMMAND ----------
 
+dbutils.widgets.text("p_data_source","")
+v_data_source = dbutils.widgets.get("p_data_source")
+
+# COMMAND ----------
+
 # MAGIC %md
 # MAGIC ##### Step -1 Read the CSV file using the spark dataframe reader
 
@@ -59,7 +64,8 @@ circuits_renamed_df = circuits_selected_df \
     .withColumnRenamed("circuitRef", "circuit_ref") \
     .withColumnRenamed("lat", "latitude") \
     .withColumnRenamed("lng", "longitude") \
-    .withColumnRenamed("alt", "altitude")
+    .withColumnRenamed("alt", "altitude") \
+    .withColumn("data_source", lit(v_data_source))
 
 # COMMAND ----------
 
@@ -80,3 +86,7 @@ circuits_final_df = add_ingestion_date(circuits_renamed_df)
 # COMMAND ----------
 
 circuits_final_df.write.mode("overwrite").parquet(f"{SILVER_LAYER_PATH}/circuits")
+
+# COMMAND ----------
+
+dbutils.notebook.exit("SUCCESS!")

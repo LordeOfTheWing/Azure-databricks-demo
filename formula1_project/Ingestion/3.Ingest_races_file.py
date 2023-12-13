@@ -12,6 +12,11 @@
 
 # COMMAND ----------
 
+dbutils.widgets.text("p_data_source","")
+v_data_source = dbutils.widgets.get("p_data_source")
+
+# COMMAND ----------
+
 races_schema = StructType(fields=[
     StructField("raceId", IntegerType(), False),
     StructField("year", IntegerType(), True),
@@ -30,13 +35,10 @@ races_df = spark.read.option("Header", True) \
     .schema(races_schema) \
     .csv(f"{BRONZE_LAYER_PATH}/races.csv")
 
-display(races_df)
-
 
 # COMMAND ----------
 
 races_selected_df = races_df.select(col("raceId"), col("year"), col("round"), col("circuitId"), col("name"), col("date"), col("time"))
-display(races_selected_df)
 
 # COMMAND ----------
 
@@ -45,10 +47,13 @@ final_races_df = races_selected_df \
     .withColumnRenamed("year","race_year") \
     .withColumnRenamed("circuitId", "circuit_id") \
     .withColumn("race_timestamp", to_timestamp(concat(col('date'),lit(' '),col('time')),'yyyy-MM-dd HH:mm:ss')) \
+    .withColumn("data_source", lit(v_data_source)) \
     .withColumn("ingestion_date", current_timestamp())
-
-display(final_races_df)
 
 # COMMAND ----------
 
 final_races_df.write.mode("overwrite").parquet(f"{SILVER_LAYER_PATH}/races")   
+
+# COMMAND ----------
+
+dbutils.notebook.exit("SUCCESS!")

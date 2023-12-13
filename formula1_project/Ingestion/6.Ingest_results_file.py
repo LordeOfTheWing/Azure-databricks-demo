@@ -13,6 +13,11 @@
 
 # COMMAND ----------
 
+dbutils.widgets.text("p_data_source","")
+v_data_source = dbutils.widgets.get("p_data_source")
+
+# COMMAND ----------
+
 results_schema = StructType(fields=[
     StructField("resultId", IntegerType(), False),
     StructField("raceId", IntegerType(),True),
@@ -53,6 +58,7 @@ results_renamed_df = results_df \
     .withColumnRenamed("fastestLap", "fastest_lap") \
     .withColumnRenamed("fastestLapTime", "fastest_lap_time") \
     .withColumnRenamed("fastestLapSpeed", "fastest_lap_speed") \
+    .withColumn("data_source", lit(v_data_source)) \
     .withColumn("ingestion_date", current_timestamp())
 
 # COMMAND ----------
@@ -64,3 +70,7 @@ results_final_df = results_renamed_df.drop(col("statusId"))
 results_final_df.write \
     .mode("overwrite") \
     .parquet(f"{SILVER_LAYER_PATH}/results")
+
+# COMMAND ----------
+
+dbutils.notebook.exit("SUCCESS!")
