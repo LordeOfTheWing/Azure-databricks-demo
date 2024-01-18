@@ -4,20 +4,16 @@
 
 # COMMAND ----------
 
-from pyspark.sql.functions import col, current_timestamp, lit
-from pyspark.sql.types import StructType, StructField, IntegerType,StringType
+# MAGIC %run "../Includes/configuration"
 
 # COMMAND ----------
 
-ADLS_SOURCE = "abfss://bronze@saprojectmaestrosnd.dfs.core.windows.net"
-ADLS_TARGET = "abfss://silver@saprojectmaestrosnd.dfs.core.windows.net"
-CONN_STRING = "fs.azure.account.key.saprojectmaestrosnd.dfs.core.windows.net"
-ACCESS_KEY = dbutils.secrets.get("Azure Key Vault", "adlsgen2key")
+# MAGIC %run "../Includes/common_functions"
 
-spark.conf.set(
-CONN_STRING,
-ACCESS_KEY
-)
+# COMMAND ----------
+
+dbutils.widgets.text("p_data_source","")
+v_data_source = dbutils.widgets.get("p_data_source")
 
 # COMMAND ----------
 
@@ -34,21 +30,22 @@ lap_times_schema = StructType(fields=[
 
 lap_times_df = spark.read \
     .schema(lap_times_schema) \
-    .csv(f"{ADLS_SOURCE}/formula1_raw/lap_times/lap_times_split*.csv")
-
-display(lap_times_df)
+    .csv(f"{BRONZE_LAYER_PATH}/lap_times/lap_times_split*.csv")
 
 # COMMAND ----------
 
 lap_times_final_df = lap_times_df \
   .withColumnRenamed("raceId", "race_id") \
   .withColumnRenamed("driverId", "driver_id") \
+  .withColumn("data_source", lit(v_data_source)) \
   .withColumn("ingestion_date", current_timestamp())
-
-display(lap_times_final_df)
 
 # COMMAND ----------
 
 lap_times_final_df.write \
     .mode("overwrite") \
-    .parquet(f"{ADLS_TARGET}/processed/lap_times")
+    .parquet(f"{SILVER_LAYER_PATH}/lap_times")
+
+# COMMAND ----------
+
+dbutils.notebook.exit("SUCCESS!")

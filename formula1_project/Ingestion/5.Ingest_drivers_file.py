@@ -4,20 +4,16 @@
 
 # COMMAND ----------
 
-from pyspark.sql.types import StructType, StructField, IntegerType, StringType, DateType
-from pyspark.sql.functions import col, current_timestamp, concat, lit
+# MAGIC %run "../Includes/configuration"
 
 # COMMAND ----------
 
-ADLS_SOURCE = "abfss://bronze@saprojectmaestrosnd.dfs.core.windows.net"
-ADLS_TARGET = "abfss://silver@saprojectmaestrosnd.dfs.core.windows.net"
-ACCESS_KEY = dbutils.secrets.get("Azure Key Vault", "adlsgen2key")
+# MAGIC %run "../Includes/common_functions"
 
-spark.conf.set(
-    "fs.azure.account.key.saprojectmaestrosnd.dfs.core.windows.net",
-    ACCESS_KEY
-)
+# COMMAND ----------
 
+dbutils.widgets.text("p_data_source","")
+v_data_source = dbutils.widgets.get("p_data_source")
 
 # COMMAND ----------
 
@@ -43,7 +39,7 @@ drivers_schema = StructType(fields=[
 
 drivers_df = spark.read \
     .schema(drivers_schema) \
-    .json(f"{ADLS_SOURCE}/formula1_raw/drivers.json")
+    .json(f"{BRONZE_LAYER_PATH}/drivers.json")
 
 # COMMAND ----------
 
@@ -51,6 +47,7 @@ drivers_renamed_df = drivers_df \
     .withColumnRenamed("driverId", "driver_id") \
     .withColumnRenamed("driverRef", "driver_ref") \
     .withColumn("name", concat(col("name.forename"),lit(" "), col("name.surname"))) \
+    .withColumn("data_source", lit(v_data_source)) \
     .withColumn("ingestion_date", current_timestamp())
 
 # COMMAND ----------
@@ -59,4 +56,8 @@ drivers_final_df = drivers_renamed_df.drop("url")
 
 # COMMAND ----------
 
-drivers_final_df.write.mode("overwrite").parquet(f"{ADLS_TARGET}/processed/drivers")
+drivers_final_df.write.mode("overwrite").parquet(f"{SILVER_LAYER_PATH}/drivers")
+
+# COMMAND ----------
+
+dbutils.notebook.exit("SUCCESS!")

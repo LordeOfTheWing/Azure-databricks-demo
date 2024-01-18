@@ -4,20 +4,16 @@
 
 # COMMAND ----------
 
-from pyspark.sql.types import StructType, StructField, IntegerType, StringType,DateType
-from pyspark.sql.functions import col, current_timestamp, lit, concat, to_timestamp
+# MAGIC %run "../Includes/configuration"
 
 # COMMAND ----------
 
-ADLS_PATH = "abfss://bronze@saprojectmaestrosnd.dfs.core.windows.net"
-ADLS_TARGET = "abfss://silver@saprojectmaestrosnd.dfs.core.windows.net"
-ACCESS_KEY = dbutils.secrets.get('Azure Key Vault', 'adlsgen2key')
+# MAGIC %run "../Includes/common_functions"
 
-spark.conf.set(
-    "fs.azure.account.key.saprojectmaestrosnd.dfs.core.windows.net",
-    ACCESS_KEY
-    )
+# COMMAND ----------
 
+dbutils.widgets.text("p_data_source","")
+v_data_source = dbutils.widgets.get("p_data_source")
 
 # COMMAND ----------
 
@@ -37,15 +33,12 @@ races_schema = StructType(fields=[
 # Step1 Read the races CSV file
 races_df = spark.read.option("Header", True) \
     .schema(races_schema) \
-    .csv(f"{ADLS_PATH}/formula1_raw/races.csv")
-
-display(races_df)
+    .csv(f"{BRONZE_LAYER_PATH}/races.csv")
 
 
 # COMMAND ----------
 
 races_selected_df = races_df.select(col("raceId"), col("year"), col("round"), col("circuitId"), col("name"), col("date"), col("time"))
-display(races_selected_df)
 
 # COMMAND ----------
 
@@ -54,10 +47,13 @@ final_races_df = races_selected_df \
     .withColumnRenamed("year","race_year") \
     .withColumnRenamed("circuitId", "circuit_id") \
     .withColumn("race_timestamp", to_timestamp(concat(col('date'),lit(' '),col('time')),'yyyy-MM-dd HH:mm:ss')) \
+    .withColumn("data_source", lit(v_data_source)) \
     .withColumn("ingestion_date", current_timestamp())
-
-display(final_races_df)
 
 # COMMAND ----------
 
-final_races_df.write.mode("overwrite").parquet(f"{ADLS_TARGET}/processed/races")
+final_races_df.write.mode("overwrite").parquet(f"{SILVER_LAYER_PATH}/races")   
+
+# COMMAND ----------
+
+dbutils.notebook.exit("SUCCESS!")
