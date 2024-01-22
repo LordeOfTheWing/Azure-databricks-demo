@@ -70,4 +70,30 @@ races_filt_df\
 
 # COMMAND ----------
 
+# MAGIC %md
+# MAGIC ###### Window Functions
 
+# COMMAND ----------
+
+demo_df = final_races_df.filter("race_year in (2019,2020)")
+display(demo_df.select("race_year").distinct())
+
+# COMMAND ----------
+
+demo_df = demo_df\
+    .groupBy("race_year", "driver_name")\
+    .agg(sum("points").alias("total_points"), countDistinct("race_name").alias("total_races"))\
+    .orderBy("race_year","total_points", ascending=False)
+display(demo_df)
+
+
+# COMMAND ----------
+
+from pyspark.sql.window import Window
+from pyspark.sql.functions import *
+
+driver_rank_spec = Window.partitionBy("race_year").orderBy(desc("total_points"))
+
+# COMMAND ----------
+
+display(demo_df.withColumn("rank", rank().over(driver_rank_spec)))
