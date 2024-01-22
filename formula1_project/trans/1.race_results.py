@@ -67,7 +67,7 @@ race_results_df = results_df.join(races_circuits_df, results_df.race_id == races
 # COMMAND ----------
 
 final_df = race_results_df.select("race_year", "race_name", "race_date", "circuit_location", "driver_name", "driver_number", "driver_nationality", 
-                                  "team", "grid", "fastest_lap","race_time","points")\
+                                  "team", "grid", "fastest_lap","race_time","points","position")\
                                 .withColumn("created_date", current_timestamp())
 
 # COMMAND ----------
@@ -77,3 +77,7 @@ display(final_df.filter("race_year = 2020 and race_name = 'Abu Dhabi Grand Prix'
 # COMMAND ----------
 
 final_df.write.mode("overwrite").parquet(f"{GOLD_LAYER_PATH}/processed/race_results")
+
+# COMMAND ----------
+
+
