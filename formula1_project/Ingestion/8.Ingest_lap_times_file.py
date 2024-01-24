@@ -44,7 +44,8 @@ lap_times_final_df = lap_times_df \
 
 lap_times_final_df.write \
     .mode("overwrite") \
-    .parquet(f"{SILVER_LAYER_PATH}/lap_times")
+    .format("parquet") \
+    .saveAsTable("f1_silver.lap_time")
 
 # COMMAND ----------
 

@@ -85,7 +85,7 @@ circuits_final_df = add_ingestion_date(circuits_renamed_df)
 
 # COMMAND ----------
 
-circuits_final_df.write.mode("overwrite").parquet(f"{SILVER_LAYER_PATH}/circuits")
+circuits_final_df.write.mode("overwrite").format("parquet").saveAsTable("f1_silver.circuit")
 
 # COMMAND ----------
 

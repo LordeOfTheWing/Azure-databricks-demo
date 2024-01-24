@@ -46,7 +46,8 @@ pit_stops_final_df = pit_stops_df \
 
 pit_stops_final_df.write \
     .mode("overwrite") \
-    .parquet(f"{SILVER_LAYER_PATH}/pit_stops")
+    .format("parquet") \
+    .saveAsTable("f1_silver.pitstop")
 
 # COMMAND ----------
 

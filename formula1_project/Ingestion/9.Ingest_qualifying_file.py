@@ -50,7 +50,8 @@ qualifying_final_df = qualifying_df \
 
 qualifying_final_df.write \
     .mode("overwrite") \
-    .parquet(f"{SILVER_LAYER_PATH}/qualifying")
+    .format("parquet") \
+    .saveAsTable("f1_silver.qualifying")
 
 # COMMAND ----------
 

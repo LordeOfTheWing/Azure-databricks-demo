@@ -11,7 +11,7 @@ from pyspark.sql.functions import *
 
 # COMMAND ----------
 
-race_results_df = spark.read.parquet(f"{GOLD_LAYER_PATH}/processed/race_results")
+race_results_df = spark.read.parquet(f"{GOLD_LAYER_PATH}/race_result")
 display(race_results_df)
 
 # COMMAND ----------
@@ -38,4 +38,4 @@ display(final_df.filter("race_year = 2020"))
 
 # COMMAND ----------
 
-final_df.write.mode("overwrite").parquet(f"{GOLD_LAYER_PATH}/processed/driver_standings")
+final_df.write.mode("overwrite").format("parquet").saveAsTable("f1_gold.driver_standing")
