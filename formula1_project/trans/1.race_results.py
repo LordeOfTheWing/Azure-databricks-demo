@@ -12,21 +12,21 @@
 
 # COMMAND ----------
 
-races_df = spark.read.parquet(f"{SILVER_LAYER_PATH}/races") \
+races_df = spark.read.parquet(f"{SILVER_LAYER_PATH}/race") \
     .withColumnRenamed("name", "race_name") \
     .withColumnRenamed("race_timestamp", "race_date")
                             
 
 # COMMAND ----------
 
-circuits_df = spark.read.parquet(f"{SILVER_LAYER_PATH}/circuits") \
+circuits_df = spark.read.parquet(f"{SILVER_LAYER_PATH}/circuit") \
     .withColumnRenamed("name", "circuit_name")\
     .withColumnRenamed("location", "circuit_location")
      
 
 # COMMAND ----------
 
-drivers_df = spark.read.parquet(f"{SILVER_LAYER_PATH}/drivers")\
+drivers_df = spark.read.parquet(f"{SILVER_LAYER_PATH}/driver")\
     .withColumnRenamed("name", "driver_name")\
     .withColumnRenamed("number", "driver_number")\
     .withColumnRenamed("nationality", "driver_nationality")
@@ -34,13 +34,13 @@ drivers_df = spark.read.parquet(f"{SILVER_LAYER_PATH}/drivers")\
 
 # COMMAND ----------
 
-constructors_df = spark.read.parquet(f"{SILVER_LAYER_PATH}/constructors")\
+constructors_df = spark.read.parquet(f"{SILVER_LAYER_PATH}/constructor")\
     .withColumnRenamed("name", "team")
 
 
 # COMMAND ----------
 
-results_df = spark.read.parquet(f"{SILVER_LAYER_PATH}/results")\
+results_df = spark.read.parquet(f"{SILVER_LAYER_PATH}/result")\
     .withColumnRenamed("time","race_time")
 
 # COMMAND ----------
@@ -76,7 +76,7 @@ display(final_df.filter("race_year = 2020 and race_name = 'Abu Dhabi Grand Prix'
 
 # COMMAND ----------
 
-final_df.write.mode("overwrite").parquet(f"{GOLD_LAYER_PATH}/processed/race_results")
+final_df.write.mode("overwrite").format("parquet").saveAsTable("f1_gold.race_result")
 
 # COMMAND ----------
 

@@ -69,7 +69,8 @@ results_final_df = results_renamed_df.drop(col("statusId"))
 
 results_final_df.write \
     .mode("overwrite") \
-    .parquet(f"{SILVER_LAYER_PATH}/results")
+    .format("parquet") \
+    .saveAsTable("f1_silver.result")
 
 # COMMAND ----------
 

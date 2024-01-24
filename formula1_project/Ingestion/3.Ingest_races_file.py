@@ -52,7 +52,7 @@ final_races_df = races_selected_df \
 
 # COMMAND ----------
 
-final_races_df.write.mode("overwrite").parquet(f"{SILVER_LAYER_PATH}/races")   
+final_races_df.write.mode("overwrite").format("parquet").saveAsTable("f1_silver.race")   
 
 # COMMAND ----------
 

@@ -48,7 +48,7 @@ constructors_final_df = add_ingestion_date(constructors_selected_df)
 
 # COMMAND ----------
 
-constructors_final_df.write.mode("overwrite").parquet(f"{SILVER_LAYER_PATH}/constructors")
+constructors_final_df.write.mode("overwrite").format("parquet").saveAsTable("f1_silver.constructor")
 
 # COMMAND ----------
 

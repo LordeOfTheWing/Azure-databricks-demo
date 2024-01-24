@@ -56,7 +56,7 @@ drivers_final_df = drivers_renamed_df.drop("url")
 
 # COMMAND ----------
 
-drivers_final_df.write.mode("overwrite").parquet(f"{SILVER_LAYER_PATH}/drivers")
+drivers_final_df.write.mode("overwrite").format("parquet").saveAsTable("f1_silver.driver")
 
 # COMMAND ----------
 
